@@ -32,7 +32,7 @@ if ($cadastro->senha != $cadastro->confSenha) {
     ?>
             <script type="text/javascript">
                 alert("Cadastro efetuado com sucesso!");
-                window.location.href = "../login/index.php";
+                window.history.back();
             </script>
         <?php
         } else {

@@ -1,111 +1,123 @@
 <?php
+
+/* 
+        Title: newAgendamento.php
+        Description: Programa resposavel por cadastrar um novo agendamento
+        Author: Victor Thomaz 
+        Date: 25/05/2024
+*/
+
 ini_set("display_errors", false);
 include("../../../config.php");
 include("../menu/index.php");
 
+//print_r($_REQUEST);
+
+if (isset($_REQUEST['id_agendamento'])) {
+    $id_agendamento = $_REQUEST['id_agendamento'];
+
+    // Recuperar os dados do serviço atual
+    $query = "SELECT * FROM tb_agendamento WHERE id_agendamento = $id_agendamento";
+    $result = mysqli_query($_SESSION['con'], $query);
+    $agendamento = mysqli_fetch_assoc($result);
+}
+
 ?>
-
-
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cadastro de Agendamento</title>
+    <title>Novo agendamento</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/choices.js/10.0.0/styles/choices.min.css" rel="stylesheet">
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
-            background-color: #dcdcdc; /* Cor de fundo cinza */
+            background-color: #b06e7f;
             color: black;
-            height: 100vh;
-            justify-content: center;
-            align-items: center;
         }
         .container {
             background-color: #fff;
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 600px;
+            width: 80%;
+            max-width: 800px;
+            margin: 20px auto;
         }
         .title {
             font-size: 24px;
             font-weight: bold;
             margin-bottom: 20px;
             text-align: center;
+            color: black;
         }
-        .form-group {
-            margin-bottom: 15px;
+        label {
+            color: black;
+            font-weight: bold;
         }
-        .form-control {
-            border-radius: 8px;
-        }
-        .btn-primary {
-            background-color: #800080;
-            border-color: #800080;
-            color: #fff;
+        form {
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="title">Cadastro de Agendamento</div>
-        <form action="data.php" method="post">
+        <div class="title">Novo agendamento</div>
+        <form method="POST" action="processa_agendamento.php">
+            <input type="hidden" name="id_agendamento" value="<?php echo isset($agendamento['id_agendamento']) ? $agendamento['id_agendamento'] : ''; ?>">
             <div class="form-group">
-                <label for="servico">Serviço</label>
-                <select class="form-control" id="servico" name="servico">
-                    <option value=""></option>
-                <?php
-                    $select = "SELECT id_servico, nome_servico FROM tb_servico" ;
-                    $result = mysqli_query($_SESSION['con'], $select);
-                    while ($row = $result->fetch_assoc()) {
-                        echo '<option value="'.$row['id_servico'].'" >'.$row['nome_servico'].'</option>';
-                    }
-                ?>
+                <label for="servicos">Serviços</label>
+                <select id="servicos" name="id_servicos[]" multiple>
+                    <option value="select_all">Selecionar todos</option>
+                    <?php 
+                        $services = "SELECT id_servico, nome_servico FROM tb_servico";
+                        $result = mysqli_query($_SESSION['con'], $services);
+                        while($row = $result->fetch_assoc()){
+                            echo '<option value="'.$row['id_servico'].'">'.$row['nome_servico'].'</option>';
+                        }
+                    ?>
                 </select>
             </div>
             <div class="form-group">
-                <label for="data">Data</label>
-                <input type="date" class="form-control" id="data" name="data">
+                <label for="id_cliente">Cliente</label>
+                <textarea class="form-control" id="id_cliente" name="id_cliente" rows="3"><?php echo isset($agendamento['id_cliente']) ? $agendamento['id_cliente'] : ''; ?></textarea>
             </div>
             <div class="form-group">
-                <label for="hora">Hora</label>
-                <input type="time" class="form-control" id="hora" name="hora">
+                <label for="data_agendamento">Data</label>
+                <input type="text" class="form-control" id="data_agendamento" name="data_agendamento" value="<?php echo isset($agendamento['data_agendamento']) ? $agendamento['data_agendamento'] : ''; ?>" required>
             </div>
-            <button type="submit" class="btn btn-primary btn-block">Agendar</button>
+            <div class="form-group">
+                <label for="hora_agendamento">Hora agendamento</label>
+                <input type="text" class="form-control" id="hora_agendamento" name="hora_agendamento" value="<?php echo isset($agendamento['hora_agendamento']) ? $agendamento['hora_agendamento'] : ''; ?>" required>
+            </div>
+            <button type="submit" name="save" class="btn btn-primary">Salvar</button>
+            <a href="index.php" class="btn btn-secondary">Cancelar</a>
         </form>
     </div>
 
-    <script>
-
-        // Obtém a data atual
-        const today = new Date();
-        
-        // Formata a data atual como YYYY-MM-DD
-        const yyyy = today.getFullYear();
-        const mm = String(today.getMonth() + 1).padStart(2, '0'); // Mês começa do 0
-        const dd = String(today.getDate()).padStart(2, '0');
-        const formattedToday = `${yyyy}-${mm}-${dd}`;
-
-        // Define a data mínima como a data atual
-        document.getElementById('data').setAttribute('min', formattedToday);
-
-        // Define a data máxima como um ano a partir da data atual
-        const nextYear = new Date(today);
-        nextYear.setFullYear(today.getFullYear() + 1);
-        const yyyyNext = nextYear.getFullYear();
-        const mmNext = String(nextYear.getMonth() + 1).padStart(2, '0');
-        const ddNext = String(nextYear.getDate()).padStart(2, '0');
-        const formattedNextYear = `${yyyyNext}-${mmNext}-${ddNext}`;
-
-        document.getElementById('data').setAttribute('max', formattedNextYear);
-
-    </script>
-
-    <script src="script.js"></script>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/choices.js/10.0.0/choices.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const element = document.getElementById('servicos');
+            const choices = new Choices(element, {
+                removeItemButton: true,
+                maxItemCount: -1,
+                searchResultLimit: 10,
+                renderChoiceLimit: -1,
+                searchEnabled: true
+            });
+
+            element.addEventListener('change', function(event) {
+                if (event.target.value === 'select_all') {
+                    const allChoices = choices._store.activeChoices.map(choice => choice.value);
+                    choices.setChoiceByValue(allChoices);
+                }
+            });
+        });
+    </script>
 </body>
 </html>

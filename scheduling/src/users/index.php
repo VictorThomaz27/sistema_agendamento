@@ -1,20 +1,24 @@
 <?php
+/* 
+        Title: index.php
+        Description: Programa resposavel por carregar o grid de usuarios
+        Author: Victor Thomaz 
+        Date: 25/05/2024
+*/
+
 ini_set("display_errors", false);
 include("../../../config.php");
 include("../menu/index.php");
-
 ?>
 
-
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Serviços</title>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <script src="service.js"></script>
     <style>
         .container-fluid {
             padding: 20px;
@@ -52,7 +56,6 @@ include("../menu/index.php");
         }
 
         th{
-            
             text-align: center;
             background-color:#C9A9A6
         }
@@ -66,55 +69,42 @@ include("../menu/index.php");
 <body>
     <div class="container-fluid">
         <div class="data-grid">
-        <div class="title">Agendamentos</div>
+        <div class="title">Usuário</div>
         <table class="table table-bordered">
             <thead class="thead-light">
                 <tr>
                     <th>Selecionar</th>
-                    <th>Serviço</th>
-                    <th>Nome do Cliente</th>
-                    <th>Valor Total</th>
-                    <th>Data</th>
-                    <th>Hora</th>
-                    <th>Status</th>
+                    <th>Tipo Usuario</th>
+                    <th>Nome</th>
+                    <th>Email</th>
+                   
                 </tr>
             </thead>
             <tbody id="dataGrid">
                 <?php
-
-                $select = "SELECT a.id_agendamento,
-                s.nome_servico,
-                us.nome_usuario,
-                ag.valor_total,
-                a.data_agendamento,
-                a.hora_agendamento,
-                sts.descricao_status
-                FROM tb_agendamento a 
-                join tb_agendamento_servico ag on (a.id_agendamento = ag.id_agendamento)
-                join tb_servico s on (s.id_servico = ag.id_servico)
-                join tb_usuario us on (us.id_usuario = a.id_usuario)
-                join tb_status sts on (sts.id_status = a.id_status)";
+                $select = "SELECT id_usuario, tipo_usuario, nome_usuario, email_usuario FROM tb_usuario ";
 
                 $result = mysqli_query($_SESSION['con'], $select);
 
-                while($row = $result->fetch_assoc()){
+                while ($row = $result->fetch_assoc()) {
                     echo '<tr>';
-                    echo '<td><input type="radio" name="selectedRow" value="'.$row['id_agendamento'].'">'.$row['titulo'].'</td>';
-                    echo '<td>'.$row['nome_servico'].'</td>';
-                    echo '<td>'.$row['nome_usuario'].'</td>';
-                    echo '<td>'.$row['valor_total'].'</td>';
-                    echo '<td>'.$row['data_agendamento'].'</td>';
-                    echo '<td>'.$row['hora_agendamento'].'</td>';
-                    echo '<td>'.$row['descricao_status'].'</td>';
+                    echo '<td><input type="radio" name="selectedRow" value="' . $row['id_servico'] . '"></td>';
+                    echo '<td>' . $row['tipo_usuario'] . '</td>';
+                    echo '<td>' . $row['nome_usuario'] . '</td>';
+                    echo '<td>' . $row['email_usuario'] . '</td>';
                     echo '</tr>';
-
                 }
                 ?>
             </tbody>
+
         </table>
-        <button class="btn btn-primary" onclick="newAgendamento()">Novo</button>
+           
+        <button class="btn btn-primary" onclick="newUser()">Novo</button>
+        <button class="btn btn-primary" onclick="editService()">Editar</button>
         <button class="btn btn-primary" onclick="getSelectedData()">Excluir</button>
+        </div>
     </div>
+
     <script>
         function getSelectedData() {
             const radios = document.getElementsByName('selectedRow');
@@ -135,14 +125,23 @@ include("../menu/index.php");
                 alert('Nenhuma linha selecionada.');
             }
         }
-        function newAgendamento(){
 
-            window.location.href = 'newAgendamento.php';
+        //Função para chamar a tela de cadastro de usuario 
+        function newUser() {
+
+            window.location.href = '../register/';
 
         }
+        function editService() {
+
+            window.location.href = 'newUser.php';
+
+}
     </script>
+
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
+
 </html>

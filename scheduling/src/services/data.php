@@ -9,45 +9,73 @@
 
 include '../../../config.php';
 
-$titulo = $_POST['titulo'];
+//cria objeto servico
+$servico = new stdClass();
 
-//Função remove caracteres especiais 
-$titulo = formatString($titulo);
 
-$preco = $_POST['preco'];
-$tempo = $_POST['tempo'];
 
-$select = "SELECT COUNT(*) FROM tb_servico where nome_servico = '" . $titulo . "'";
-//echo '<pre>';
-//echo $select;exit;
+//execeuta a ação de deletar, ação é definida na index.php
+if($_REQUEST['acao'] == 'deletar'){
 
-$result = mysqli_query($_SESSION['con'], $select);
+    $servico->codigo = $_REQUEST['codigo'];
+    $delete = "DELETE FROM tb_servico where id_servico = ".$servico->codigo;
 
-$count = $result->fetch_assoc();
-
-echo 'Count: ';
-$count = $count['COUNT(*)'];
-
-if ($count > 0) {
-?>
-    <script type="text/javascript">
-        alert("Serviço já existe no sistema");
-        window.location.href = "newService.php";
-    </script>
+    if(!mysqli_query($_SESSION['con'], $delete)){
+        printf("Error message: %s\n", mysqli_error($_SESSION['con']));
+    }else{
+        ?>
+            <script type="text/javascript">
+                alert("Servico excluido com sucesso");
+                window.location.href = "index.php";
+            </script>
     <?php
-} else {
-
-    $sql =  "INSERT INTO tb_servico (nome_servico, valor_servico, tempo_servico) VALUES ('" . $titulo . "','" . $preco . "','" . $tempo . "')";
-
-    if (mysqli_query($_SESSION['con'], $sql)) {
-    ?>
-        <script type="text/javascript">
-            alert("Cadastro efetuado com sucesso!");
-            window.location.href = "newService.php";
-        </script>
-<?php
-    } else {
-        echo "Erro: " . $sql . "<br>" . mysqli_error($conn);
     }
 }
+
+//Executa a acao de cadastrar um novo servico 
+if($_POST['acao'] == 'cadastrar'){
+
+    $servico->titulo = $_POST['titulo'];
+    //Função remove caracteres especiais 
+    $servico->titulo = formatString($servico->titulo);
+
+    //Remove indicador de real da string
+    $servico->valor = str_replace('R$','',$_POST['valor']);
+    $servico->tempo = minutosHoras($_POST['tempo']);
+    //print_r($servico);exit;
+
+    $select = "SELECT COUNT(*) FROM tb_servico where nome_servico = '" . $servico->titulo . "'";
+    //echo '<pre>';
+    //echo $select;exit;
+    $result = mysqli_query($_SESSION['con'], $select);
+    $count = $result->fetch_assoc();
+    
+    echo 'Count: ';
+    $count = $count['COUNT(*)'];
+    
+    if ($count > 0) {
+    ?>
+        <script type="text/javascript">
+            alert("Serviço já existe no sistema");
+            window.location.href = "newService.php";
+        </script>
+        <?php
+    } else {
+    
+        $sql =  "INSERT INTO tb_servico (nome_servico, valor_servico, tempo_servico) VALUES ('" . $servico->titulo . "','" . $servico->valor  . "','" . $servico->tempo . "')";
+    
+        //valida retorno do banco de dados 
+        if(!mysqli_query($_SESSION['con'], $sql)){
+            printf("Error message: %s\n", mysqli_error($_SESSION['con']));
+        }else{
+            ?>
+                <script type="text/javascript">
+                    alert("Cadastro efetuado com sucesso!");
+                    window.location.href = "newService.php";
+                </script>
+        <?php
+        }
+    }
+}
+
 ?>

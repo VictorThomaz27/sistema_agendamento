@@ -1,6 +1,13 @@
 <?php
 ini_set("display_errors", false);
 
+/* 
+        Title: index.php
+        Description: Programa responsavel por carregar o menu que flutua entre as telas do sistema
+        Author: Victor Thomaz 
+        Date: 25/05/2024
+    */
+
 ?>
 
 <!DOCTYPE html>
@@ -22,31 +29,24 @@ ini_set("display_errors", false);
   .modal-content {
     width: 300px;
   }
-  .list-group-item:hover {
-    background-color: rgba(59, 57, 57, 0.164) !important;
+  .nav-link{
+    color:white;
+    border-radius: 5px;
+  }
+  .nav-link:hover{
+    background-color: rgb(201, 169, 166) !important;
+  }
+  .navbar{
+    margin-bottom: 10px;
   }
   </style>
 
-<body style="background-color: #b06e7f">
-<nav class="navbar navbar-dark bg-dark">
-  <a class="navbar-brand" href="#">Menu</a>
-  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-    <span class="navbar-toggler-icon"></span>
-  </button>
-  <div class="collapse navbar-collapse" id="navbarNav">
-    <ul class="navbar-nav">
-      <li class="nav-item active">
+<body style="background-color: #939393">
+<nav class="navbar navbar-dark bg-dark" style="background-color: #C9A9A6;">
         <a class="nav-link"  href="../home/index.php">Home <span class="sr-only">(current)</span></a>
-      </li>
-      <li class="nav-item">
         <a class="nav-link" href="../agendamentos/index.php">Agendamentos</a>
-      </li>
-      <li class="nav-item">
+        <a class="nav-link" href="../users/index.php">Usuários</a>
         <a class="nav-link" href="../services/index.php">Serviços</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link disabled" href="../login/logout.php">Sair</a>
-      </li>
-    </ul>
-  </div>
+        <a class="nav-link" href="../login/logout.php">Sair</a>
+     
 </nav>
