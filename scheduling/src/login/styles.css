@@ -1,0 +1,82 @@
+body {
+    background-color: #b06e7f;
+}
+
+.ftco-section {
+    padding: 4em 0;
+}
+
+.logo {
+    max-width: 100px; /* Ajuste o tamanho conforme necessário */
+    margin-bottom: 20px; /* Espaço entre o logo e o título */
+}
+
+.login-wrap {
+    background: #fff;
+    border-radius: 10px;
+    padding: 2em;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.form-control {
+    position: relative;
+    z-index: 2;
+    background: #f7f7f7 !important;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    color: #333;
+    height: 50px;
+    padding: 0 1.5em;
+}
+
+.form-control-placeholder {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    padding: 0 1.5em;
+    pointer-events: none;
+    color: #999;
+    transition: all 0.2s;
+}
+
+.form-control:focus + .form-control-placeholder,
+.form-control:valid + .form-control-placeholder {
+    top: 5px;
+    left: 1.5em;
+    color: #333;
+    font-size: 12px;
+}
+
+.field-icon {
+    float: right;
+    margin-left: -25px;
+    margin-top: -35px;
+    position: relative;
+    z-index: 2;
+    cursor: pointer;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.submit {
+    background-color: #d9537f;
+    border: none;
+    padding: 10px;
+    color: white;
+    cursor: pointer;
+}
+
+.submit:hover {
+    background-color: #c43d6f;
+}
+
+a {
+    color: #d01669;
+}
+
+a:hover {
+    color: #b0155e;
+}

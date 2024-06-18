@@ -3,13 +3,7 @@ ini_set("display_errors", false);
 include("../../../config.php");
 include("../menu/index.php");
 
-// Simulação de dados de agendamentos para o dia atual
-$agendamentos = [
-    ["id" => 1, "nome" => "Agendamento 1", "status" => "Realizado"],
-    ["id" => 2, "nome" => "Agendamento 2", "status" => "Realizado"],
-    ["id" => 3, "nome" => "Agendamento 3", "status" => "Aguardando"],
-    ["id" => 4, "nome" => "Agendamento 4", "status" => "Aguardando"],
-];
+$selectAgend = ""
 
 ?>
 

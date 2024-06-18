@@ -1,5 +1,4 @@
 <?php
-
 /* 
         Title: index.php
         Description: Programa faz a validação no banco de dados se o usuario existe ou não, caso ele exista realizar login

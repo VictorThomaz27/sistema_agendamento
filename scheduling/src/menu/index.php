@@ -41,7 +41,7 @@ ini_set("display_errors", false);
   }
   </style>
 
-<body style="background-color: #939393">
+<body style="background-color: #7c3451">
 <nav class="navbar navbar-dark bg-dark" style="background-color: #C9A9A6;">
         <a class="nav-link"  href="../home/index.php">Home <span class="sr-only">(current)</span></a>
         <a class="nav-link" href="../agendamentos/index.php">Agendamentos</a>

@@ -46,7 +46,7 @@ $result = mysqli_query($_SESSION['con'], $select);
 
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
