@@ -1,63 +1,58 @@
 <?php
-
 /*
-    title: data.php
+    Title: data.php
     Description: No data.php é onde vai ser feito os processos de execução projeto
-    Author:  Victor Thomaz
-    date: 30/05/2024
-    */
+    Author: Victor Thomaz
+    Date: 30/05/2024
+*/
 
 include '../../../config.php';
 
-//Declarando Objeto
-$agendamento = new stdClass();
+if ($_GET['acao'] == 'horarios' && isset($_GET['data'])) {
+    // Adicione lógica para verificar horários disponíveis para a data fornecida, se necessário
+    // Por enquanto, vamos apenas gerar os horários de 09:00 a 18:00 para qualquer data
+    $inicio = "09:00";
+    $fim = "18:00";
+    $intervalo = 30;
+    $data = $_GET['data'];
 
-//Criando atributos do objeto
-$agendamento->id_servico = $_POST['servico'];
-$agendamento->data_agendamento = $_POST['data'];
-$agendamento->hora_agendamento = $_POST['hora'];
-$agendamento->cliente = $_SESSION['id_usuario'];
+    $horarios = gerarHorarios($inicio, $fim, $intervalo);
 
+    $horarioReservados = buscaHorarios($data);
 
-$sql =  "INSERT INTO tb_agendamento(id_usuario,id_status, data_agendamento, hora_agendamento) VALUES ('" . $agendamento->cliente . "','1','" . $agendamento->data_agendamento . "','" . $agendamento->hora_agendamento . "')";
+    $result = array_diff($horarios, $horarioReservados);
 
-if (mysqli_query($_SESSION['con'], $sql)) {
-
-
-    $select = "SELECT id_agendamento FROM tb_agendamento where id_usuario = " . $agendamento->cliente;
-
-    $result = $conn->query($select) or die("Falha na execução do código SQL: " . $conn->error);
-
-    if ($result->num_rows > 0) {
-
-        $usuario = $result->fetch_assoc();
-
-        $agendamento->id_agendamento = $usuario['id_agendamento'];
-
-        $selectServico = "SELECT valor_servico FROM tb_servico where id_servico = " . $agendamento->id_servico;
-
-        $resultServico = $conn->query($selectServico) or die("Falha na execução do código SQL: " . $conn->error);
-
-        $servico = $resultServico->fetch_assoc();
-
-        $agendamento->valor = $servico['valor_servico'];
-
-        $insertAgendamentoServico =  "INSERT INTO tb_agendamento_servico(id_agendamento, id_servico, valor_total) VALUES (" . $agendamento->id_agendamento . ", " . $agendamento->id_servico . ",'" . $agendamento->valor . "')";
-
-        if (mysqli_query($_SESSION['con'], $insertAgendamentoServico)) {
-?>
-            <script type="text/javascript">
-                alert("Agendamento cadastrado com sucesso!");
-                window.location.href = "newAgendamento.php";
-            </script>
-    <?php
-        }else{
-            echo "Erro: " . $insertAgendamentoServico . "<br>" . mysqli_error($conn);
-        }
-    }
-
-} else {
-    echo "Erro: " . $sql . "<br>" . mysqli_error($conn);
+    // Certifique-se de definir o cabeçalho Content-Type para JSON
+    header('Content-Type: application/json');
+    echo json_encode(array_values($result));
 }
 
+
+
+function gerarHorarios($inicio, $fim, $intervalo) {
+    $horarios = [];
+    $horaAtual = strtotime($inicio);
+    $horaFim = strtotime($fim);
+
+    while ($horaAtual <= $horaFim) {
+        $horarios[] = date('H:i', $horaAtual);
+        $horaAtual = strtotime('+' . $intervalo . ' minutes', $horaAtual);
+    }
+
+    return $horarios;
+}
+
+//função responsavel por buscar os horarios que ja existem no
+function buscaHorarios($data) {
+    global $_SESSION;
+
+    $horarios = [];
+    $select = "SELECT hora_agendamento FROM tb_agendamento WHERE data_agendamento = '$data'";
+    $result = mysqli_query($_SESSION['con'], $select);
+    while ($row = $result->fetch_assoc()) {
+        // Formatar a hora no formato H:i
+        $horarios[] = date('H:i', strtotime($row['hora_agendamento']));
+    }
+    return $horarios;
+}
 ?>

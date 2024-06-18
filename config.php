@@ -41,3 +41,5 @@ function minutosHoras($minutos) {
     // Retorna o valor formatado
     return $horasFormatadas . ':' . $minutosFormatados .':00';
 }
+
+

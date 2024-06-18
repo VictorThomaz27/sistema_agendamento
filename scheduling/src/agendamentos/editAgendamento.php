@@ -1,8 +1,8 @@
 <?php
 
 /* 
-        Title: newAgendamento.php
-        Description: Programa responsavel pelo layout do formulário para cadastrar um novo agendamento 
+        Title: editAgendamento.php
+        Description: Programa responsavel pelo layout do formulário para editar um agendamento 
         Author: Victor Thomaz 
         Date: 25/05/2024
     */
@@ -19,7 +19,7 @@ include("../menu/index.php");
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Novo Agendamento</title>
+    <title>Editar Agendamento</title>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -102,11 +102,11 @@ include("../menu/index.php");
 
 <body>
     <div class="container">
-        <div class="title">Novo agendamento</div>
+        <div class="title">Editar agendamento</div>
         <form id="formularioAgendamento">
             <div class="row justify-content-center">
                 <label for="nome_servico">Serviços</label>
-                <select class="js-select2" multiple="multiple" name="servicos[]" id="servicos" data-placeholder="Escolha um ou mais serviços" onchange="somaServicos()">
+                <select class="js-select2" multiple="multiple" name="servicos[]" onchange="somaServicos()">
                     <?php
                     $select_servicos = "SELECT id_servico, nome_servico, valor_servico  FROM tb_servico";
                     $result_servicos = mysqli_query($_SESSION['con'], $select_servicos);

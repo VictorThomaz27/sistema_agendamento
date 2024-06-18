@@ -1,14 +1,31 @@
 <?php
 /* 
-        Title: index.php
-        Description: Programa resposavel por carregar o grid de usuarios
-        Author: Victor Thomaz 
-        Date: 25/05/2024
+    Title: index.php
+    Description: Programa resposavel por carregar o grid de usuarios
+    Author: Victor Thomaz 
+    Date: 25/05/2024
 */
 
 ini_set("display_errors", false);
 include("../../../config.php");
 include("../menu/index.php");
+
+// Definindo o número de itens por página
+$itens_por_pagina = 10;
+
+// Determinando a página atual
+$pagina_atual = isset($_GET['pagina']) ? $_GET['pagina'] : 1;
+
+// Calculando o offset
+$offset = ($pagina_atual - 1) * $itens_por_pagina;
+
+// Consulta SQL com paginação
+$select = "SELECT id_usuario, tipo_usuario, nome_usuario, email_usuario FROM tb_usuario LIMIT $offset, $itens_por_pagina";
+
+$result = mysqli_query($_SESSION['con'], $select);
+
+$total_registros = mysqli_num_rows(mysqli_query($_SESSION['con'], "SELECT * FROM tb_usuario"));
+$total_paginas = ceil($total_registros / $itens_por_pagina);
 ?>
 
 <!DOCTYPE html>
@@ -17,7 +34,7 @@ include("../menu/index.php");
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Serviços</title>
+    <title>Usuários</title>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <style>
         .container-fluid {
@@ -55,9 +72,9 @@ include("../menu/index.php");
             background-color: gray;
         }
 
-        th{
+        th {
             text-align: center;
-            background-color:#C9A9A6
+            background-color: #C9A9A6
         }
 
         td {
@@ -69,39 +86,39 @@ include("../menu/index.php");
 <body>
     <div class="container-fluid">
         <div class="data-grid">
-        <div class="title">Usuário</div>
-        <table class="table table-bordered">
-            <thead class="thead-light">
-                <tr>
-                    <th>Selecionar</th>
-                    <th>Tipo Usuario</th>
-                    <th>Nome</th>
-                    <th>Email</th>
-                   
-                </tr>
-            </thead>
-            <tbody id="dataGrid">
-                <?php
-                $select = "SELECT id_usuario, tipo_usuario, nome_usuario, email_usuario FROM tb_usuario ";
-
-                $result = mysqli_query($_SESSION['con'], $select);
-
-                while ($row = $result->fetch_assoc()) {
-                    echo '<tr>';
-                    echo '<td><input type="radio" name="selectedRow" value="' . $row['id_servico'] . '"></td>';
-                    echo '<td>' . $row['tipo_usuario'] . '</td>';
-                    echo '<td>' . $row['nome_usuario'] . '</td>';
-                    echo '<td>' . $row['email_usuario'] . '</td>';
-                    echo '</tr>';
-                }
-                ?>
-            </tbody>
-
-        </table>
-           
-        <button class="btn btn-primary" onclick="newUser()">Novo</button>
-        <button class="btn btn-primary" onclick="editService()">Editar</button>
-        <button class="btn btn-primary" onclick="getSelectedData()">Excluir</button>
+            <div class="title">Usuários</div>
+            <table class="table table-bordered">
+                <thead class="thead-light">
+                    <tr>
+                        <th>Selecionar</th>
+                        <th>Tipo Usuário</th>
+                        <th>Nome</th>
+                        <th>Email</th>
+                    </tr>
+                </thead>
+                <tbody id="dataGrid">
+                    <?php
+                    while ($row = $result->fetch_assoc()) {
+                        echo '<tr>';
+                        echo '<td><input type="radio" name="selectedRow" value="' . $row['id_usuario'] . '"></td>';
+                        echo '<td>' . $row['tipo_usuario'] . '</td>';
+                        echo '<td>' . $row['nome_usuario'] . '</td>';
+                        echo '<td>' . $row['email_usuario'] . '</td>';
+                        echo '</tr>';
+                    }
+                    ?>
+                </tbody>
+            </table>
+            <nav aria-label="Page navigation example">
+                <ul class="pagination justify-content-center">
+                    <?php for ($i = 1; $i <= $total_paginas; $i++) : ?>
+                        <li class="page-item <?php if ($i == $pagina_atual) echo 'active'; ?>"><a class="page-link" href="?pagina=<?php echo $i; ?>"><?php echo $i; ?></a></li>
+                    <?php endfor; ?>
+                </ul>
+            </nav>
+            <button class="btn btn-primary" onclick="newUser()">Novo</button>
+            <button class="btn btn-primary" onclick="editService()">Editar</button>
+            <button class="btn btn-primary" onclick="getSelectedData()">Excluir</button>
         </div>
     </div>
 
@@ -128,15 +145,12 @@ include("../menu/index.php");
 
         //Função para chamar a tela de cadastro de usuario 
         function newUser() {
-
             window.location.href = '../register/';
-
         }
+
         function editService() {
-
             window.location.href = 'newUser.php';
-
-}
+        }
     </script>
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>

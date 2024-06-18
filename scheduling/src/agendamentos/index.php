@@ -1,8 +1,47 @@
 <?php
+/* 
+        Title: index.php
+        Description: Programa responsavel pelo grid de agendamentos
+        Author: Victor Thomaz 
+        Date: 25/05/2024
+    */
+
+
 ini_set("display_errors", false);
 include("../../../config.php");
 include("../menu/index.php");
 
+$limit = 10; // Número de registros por página
+$page = isset($_GET['page']) ? $_GET['page'] : 1;
+$offset = ($page - 1) * $limit;
+
+// Contar o número total de registros
+$countQuery = "SELECT COUNT(*) AS total FROM tb_agendamento a
+               JOIN tb_agendamento_servico ag ON (a.id_agendamento = ag.id_agendamento)
+               JOIN tb_servico s ON (s.id_servico = ag.id_servico)
+               JOIN tb_usuario us ON (us.id_usuario = a.id_usuario)
+               JOIN tb_status sts ON (sts.id_status = a.id_status)";
+$countResult = mysqli_query($_SESSION['con'], $countQuery);
+$countRow = $countResult->fetch_assoc();
+$total = $countRow['total'];
+$totalPages = ceil($total / $limit);
+
+// Consulta para buscar registros com limite
+$select = "SELECT a.id_agendamento,
+           s.nome_servico,
+           us.nome_usuario,
+           ag.valor_total,
+           a.data_agendamento,
+           a.hora_agendamento,
+           sts.descricao_status
+           FROM tb_agendamento a
+           JOIN tb_agendamento_servico ag ON (a.id_agendamento = ag.id_agendamento)
+           JOIN tb_servico s ON (s.id_servico = ag.id_servico)
+           JOIN tb_usuario us ON (us.id_usuario = a.id_usuario)
+           JOIN tb_status sts ON (sts.id_status = a.id_status)
+           LIMIT $offset, $limit";
+
+$result = mysqli_query($_SESSION['con'], $select);
 ?>
 
 
@@ -52,7 +91,6 @@ include("../menu/index.php");
         }
 
         th{
-            
             text-align: center;
             background-color:#C9A9A6
         }
@@ -60,60 +98,71 @@ include("../menu/index.php");
         td {
             text-align: center;
         }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .pagination a {
+            margin: 0 5px;
+            padding: 8px 16px;
+            text-decoration: none;
+            background-color: #007bff;
+            color: white;
+            border-radius: 5px;
+        }
+
+        .pagination a.active {
+            background-color: #0056b3;
+        }
     </style>
 </head>
 
 <body>
     <div class="container-fluid">
         <div class="data-grid">
-        <div class="title">Agendamentos</div>
-        <table class="table table-bordered">
-            <thead class="thead-light">
-                <tr>
-                    <th>Selecionar</th>
-                    <th>Serviço</th>
-                    <th>Nome do Cliente</th>
-                    <th>Valor Total</th>
-                    <th>Data</th>
-                    <th>Hora</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody id="dataGrid">
+            <div class="title">Agendamentos</div>
+            <table class="table table-bordered">
+                <thead class="thead-light">
+                    <tr>
+                        <th>Selecionar</th>
+                        <th>Serviço</th>
+                        <th>Nome do Cliente</th>
+                        <th>Valor Total</th>
+                        <th>Data</th>
+                        <th>Hora</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="dataGrid">
+                    <?php
+                    while($row = $result->fetch_assoc()){
+                        echo '<tr>';
+                        echo '<td><input type="radio" name="selectedRow" value="'.$row['id_agendamento'].'">'.$row['titulo'].'</td>';
+                        echo '<td>'.$row['nome_servico'].'</td>';
+                        echo '<td>'.$row['nome_usuario'].'</td>';
+                        echo '<td>'.$row['valor_total'].'</td>';
+                        echo '<td>'.$row['data_agendamento'].'</td>';
+                        echo '<td>'.$row['hora_agendamento'].'</td>';
+                        echo '<td>'.$row['descricao_status'].'</td>';
+                        echo '</tr>';
+                    }
+                    ?>
+                </tbody>
+            </table>
+            <div class="pagination">
                 <?php
-
-                $select = "SELECT a.id_agendamento,
-                s.nome_servico,
-                us.nome_usuario,
-                ag.valor_total,
-                a.data_agendamento,
-                a.hora_agendamento,
-                sts.descricao_status
-                FROM tb_agendamento a 
-                join tb_agendamento_servico ag on (a.id_agendamento = ag.id_agendamento)
-                join tb_servico s on (s.id_servico = ag.id_servico)
-                join tb_usuario us on (us.id_usuario = a.id_usuario)
-                join tb_status sts on (sts.id_status = a.id_status)";
-
-                $result = mysqli_query($_SESSION['con'], $select);
-
-                while($row = $result->fetch_assoc()){
-                    echo '<tr>';
-                    echo '<td><input type="radio" name="selectedRow" value="'.$row['id_agendamento'].'">'.$row['titulo'].'</td>';
-                    echo '<td>'.$row['nome_servico'].'</td>';
-                    echo '<td>'.$row['nome_usuario'].'</td>';
-                    echo '<td>'.$row['valor_total'].'</td>';
-                    echo '<td>'.$row['data_agendamento'].'</td>';
-                    echo '<td>'.$row['hora_agendamento'].'</td>';
-                    echo '<td>'.$row['descricao_status'].'</td>';
-                    echo '</tr>';
-
+                for ($i = 1; $i <= $totalPages; $i++) {
+                    echo '<a href="?page=' . $i . '" class="' . ($i == $page ? 'active' : '') . '">' . $i . '</a>';
                 }
                 ?>
-            </tbody>
-        </table>
-        <button class="btn btn-primary" onclick="newAgendamento()">Novo</button>
-        <button class="btn btn-primary" onclick="getSelectedData()">Excluir</button>
+            </div>
+            <button class="btn btn-primary" onclick="newAgendamento()">Novo</button>
+            <button class="btn btn-primary" onclick="editAgendamento()">Editar</button>
+            <button class="btn btn-primary" onclick="getSelectedData()">Excluir</button>
+        </div>
     </div>
     <script>
         function getSelectedData() {
@@ -136,13 +185,12 @@ include("../menu/index.php");
             }
         }
         function newAgendamento(){
-
             window.location.href = 'newAgendamento.php';
-
         }
     </script>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
+
 </html>
