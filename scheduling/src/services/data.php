@@ -17,18 +17,37 @@ $servico = new stdClass();
 //execeuta a ação de deletar, ação é definida na index.php
 if($_REQUEST['acao'] == 'deletar'){
 
+    //recebe o valor id_servico
     $servico->codigo = $_REQUEST['codigo'];
-    $delete = "DELETE FROM tb_servico where id_servico = ".$servico->codigo;
 
-    if(!mysqli_query($_SESSION['con'], $delete)){
-        printf("Error message: %s\n", mysqli_error($_SESSION['con']));
-    }else{
-        ?>
+    if($servico->codigo){
+
+        //Cria query de delete na tabela agendamento servico
+        $delAgendamento = "DELETE FROM tb_agendamento_servico WHERE id_servico =".$servico->codigo;
+
+        //Se der erro, mostrar o erro
+        if(!mysqli_query($_SESSION['con'], $delAgendamento)){
+
+            printf("Error message: %s\n", mysqli_error($_SESSION['con']));
+    
+        } else {
+
+            //Cria query de delete na tabela servico
+            $delete = "DELETE FROM tb_servico where id_servico = ".$servico->codigo;
+
+            if(!mysqli_query($_SESSION['con'], $delete)){
+
+            printf("Error message: %s\n", mysqli_error($_SESSION['con']));
+
+            }else{
+            ?>
             <script type="text/javascript">
                 alert("Servico excluido com sucesso");
                 window.location.href = "index.php";
             </script>
-    <?php
+            <?php
+            }
+        }
     }
 }
 

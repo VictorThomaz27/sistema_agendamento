@@ -88,19 +88,33 @@ $total_paginas = ceil($total_registros / $itens_por_pagina);
                         <th scope="col">Selecionar</th>
                         <th scope="col">Título</th>
                         <th scope="col">Descrição</th>
-                        <th scope="col">Valor</th>
+                        <th scope="col">(R$) Valor</th>
                         <th scope="col">Tempo</th>
                     </tr>
                 </thead>
                 <tbody id="dataGrid">
                     <?php
                     while ($row = $result->fetch_assoc()) {
+
+                        //echo $data_formatada;
+                        //echo $row['tempo_servico'];
+
+                        //Transformando horas em minutos
+                        $tempo = $row['tempo_servico'];
+                        $hora = substr($tempo, -7);
+                        $min = ($hora * 60);
+                        //$tempo_formatado = str_replace(':00', '', $tempo);
+                        
+                        $timestamp = strtotime($row['tempo_servico']);
+                        $tempo_formatado = date('i:s', $timestamp);
+                        $tempo_servico = $tempo_formatado +$min;
+
                         echo '<tr>';
                         echo '<td><input type="radio" name="selectedRow" value="' . $row['id_servico'] . '"></td>';
                         echo '<td>' . $row['nome_servico'] . '</td>';
                         echo '<td>' . $row['descricao_servico'] . '</td>';
-                        echo '<td> R$ ' . $row['valor_servico'] . '</td>';
-                        echo '<td>' . $row['tempo_servico'] . '</td>';
+                        echo '<td>' . $row['valor_servico'] . '</td>';
+                        echo '<td>' . $tempo_servico . ' min</td>';
                         echo '</tr>';
                     }
                     ?>

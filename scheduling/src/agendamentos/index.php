@@ -6,7 +6,6 @@
         Date: 25/05/2024
     */
 
-
 ini_set("display_errors", false);
 include("../../../config.php");
 include("../menu/index.php");
@@ -27,23 +26,33 @@ $total = $countRow['total'];
 $totalPages = ceil($total / $limit);
 
 // Consulta para buscar registros com limite
-$select = "SELECT a.id_agendamento,
-           s.nome_servico,
-           us.nome_usuario,
-           ag.valor_total,
-           a.data_agendamento,
-           a.hora_agendamento,
-           sts.descricao_status
-           FROM tb_agendamento a
-           JOIN tb_agendamento_servico ag ON (a.id_agendamento = ag.id_agendamento)
-           JOIN tb_servico s ON (s.id_servico = ag.id_servico)
-           JOIN tb_usuario us ON (us.id_usuario = a.id_usuario)
-           JOIN tb_status sts ON (sts.id_status = a.id_status)
+$select = "SELECT 
+    a.id_agendamento,
+    GROUP_CONCAT(DISTINCT s.nome_servico SEPARATOR ', ') AS nome_servico,
+    us.nome_usuario,
+    SUM(ag.valor_total) AS valor_total,
+    a.data_agendamento,
+    a.hora_agendamento,
+    sts.descricao_status,
+    a.id_status
+FROM 
+    tb_agendamento a
+JOIN 
+    tb_agendamento_servico ag ON a.id_agendamento = ag.id_agendamento
+JOIN 
+    tb_servico s ON s.id_servico = ag.id_servico
+JOIN 
+    tb_usuario us ON us.id_usuario = a.id_usuario
+JOIN 
+    tb_status sts ON (sts.id_status = a.id_status and a.id_status <> 4)
+GROUP BY 
+    a.id_agendamento, us.nome_usuario, a.data_agendamento, a.hora_agendamento, sts.descricao_status
+ORDER BY 
+    a.data_agendamento
            LIMIT $offset, $limit";
 
 $result = mysqli_query($_SESSION['con'], $select);
 ?>
-
 
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -53,7 +62,7 @@ $result = mysqli_query($_SESSION['con'], $select);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Serviços</title>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <script src="service.js"></script>
+    <script src="index.js"></script>
     <style>
         .container-fluid {
             padding: 20px;
@@ -90,9 +99,9 @@ $result = mysqli_query($_SESSION['con'], $select);
             background-color: gray;
         }
 
-        th{
+        th {
             text-align: center;
-            background-color:#C9A9A6
+            background-color: #C9A9A6
         }
 
         td {
@@ -130,7 +139,7 @@ $result = mysqli_query($_SESSION['con'], $select);
                         <th>Selecionar</th>
                         <th>Serviço</th>
                         <th>Nome do Cliente</th>
-                        <th>Valor Total</th>
+                        <th>Valor Total (R$) </th>
                         <th>Data</th>
                         <th>Hora</th>
                         <th>Status</th>
@@ -138,15 +147,22 @@ $result = mysqli_query($_SESSION['con'], $select);
                 </thead>
                 <tbody id="dataGrid">
                     <?php
-                    while($row = $result->fetch_assoc()){
+                    while ($row = $result->fetch_assoc()) {
+
+                        $data = strtotime($row['data_agendamento']);
+                        $data_formatada = date('d/m/Y', $data);
+                        $timestamp = strtotime($row['hora_agendamento']);
+                        $hora_formatada = date('h:i', $timestamp);
+                        $valor = str_replace('.', ',', $row['valor_total']);
+
                         echo '<tr>';
-                        echo '<td><input type="radio" name="selectedRow" value="'.$row['id_agendamento'].'">'.$row['titulo'].'</td>';
-                        echo '<td>'.$row['nome_servico'].'</td>';
-                        echo '<td>'.$row['nome_usuario'].'</td>';
-                        echo '<td>'.$row['valor_total'].'</td>';
-                        echo '<td>'.$row['data_agendamento'].'</td>';
-                        echo '<td>'.$row['hora_agendamento'].'</td>';
-                        echo '<td>'.$row['descricao_status'].'</td>';
+                        echo '<td><input type="radio" name="selectedRow" value="' . $row['id_agendamento'] . '" data-id-status="' . $row['id_status'] . '">' . $row['titulo'] . '</td>';
+                        echo '<td>' . $row['nome_servico'] . '</td>';
+                        echo '<td>' . $row['nome_usuario'] . '</td>';
+                        echo '<td>' . $valor . '</td>';
+                        echo '<td>' . $data_formatada . '</td>';
+                        echo '<td>' . $hora_formatada . '</td>';
+                        echo '<td>' . $row['descricao_status'] . '</td>';
                         echo '</tr>';
                     }
                     ?>
@@ -160,12 +176,12 @@ $result = mysqli_query($_SESSION['con'], $select);
                 ?>
             </div>
             <button class="btn btn-primary" onclick="newAgendamento()">Novo</button>
-            <button class="btn btn-primary" onclick="editAgendamento()">Editar</button>
-            <button class="btn btn-primary" onclick="getSelectedData()">Excluir</button>
+            <button class="btn btn-primary" onclick="atualizarAgendamento()">Atualizar</button>
+            <button class="btn btn-primary" onclick="deleteAgendamento()">Excluir</button>
         </div>
     </div>
     <script>
-        function getSelectedData() {
+        function deleteAgendamento() {
             const radios = document.getElementsByName('selectedRow');
             let selectedValue;
             for (const radio of radios) {
@@ -174,17 +190,52 @@ $result = mysqli_query($_SESSION['con'], $select);
                     break;
                 }
             }
+
             if (selectedValue) {
-                const row = document.querySelector(`#dataGrid tr:nth-child(${selectedValue})`);
-                const title = row.cells[1].textContent;
-                const value = row.cells[2].textContent;
-                const time = row.cells[3].textContent;
-                alert(`Título: ${title}\nValor: ${value}\nTempo: ${time}`);
+                let confirmacao = "Deseja mesmo excluir este agendamento? ";
+                if (confirm(confirmacao) == true) {
+                    const code = selectedValue;
+                    // Construindo a URL com os parâmetros
+                    const url = `deleteAgendamento.php?acao=deletar&codigo=${encodeURIComponent(code)}`;
+                    // Redirecionando para a próxima página com os parâmetros
+                    window.location.href = url;
+                } else {
+                    alert("Operação cancelada!");
+                }
             } else {
                 alert('Nenhuma linha selecionada.');
             }
         }
-        function newAgendamento(){
+
+        function atualizarAgendamento() {
+            const radios = document.getElementsByName('selectedRow');
+            let selectedValue;
+            let idStatus;
+            for (const radio of radios) {
+                if (radio.checked) {
+                    selectedValue = radio.value;
+                    idStatus = radio.getAttribute('data-id-status');
+                    break;
+                }
+            }
+
+            if (selectedValue) {
+                let confirmacao = "Deseja mesmo atualizar este agendamento? ";
+                if (confirm(confirmacao) == true) {
+                    const code = selectedValue;
+                    // Construindo a URL com os parâmetros
+                    const url = `editarStatus.php?acao=atualizar&codigo=${encodeURIComponent(code)}&id_status=${encodeURIComponent(idStatus)}`;
+                    // Redirecionando para a próxima página com os parâmetros
+                    window.location.href = url;
+                } else {
+                    alert("Operação cancelada!");
+                }
+            } else {
+                alert('Nenhuma linha selecionada.');
+            }
+        }
+
+        function newAgendamento() {
             window.location.href = 'newAgendamento.php';
         }
     </script>

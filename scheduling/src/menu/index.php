@@ -39,14 +39,32 @@ ini_set("display_errors", false);
   .navbar{
     margin-bottom: 10px;
   }
+  .btn{
+    color:white;
+  }
+  .btn:hover{
+    background-color: rgb(201, 169, 166)!important;
+  }
   </style>
 
 <body style="background-color: #7c3451">
 <nav class="navbar navbar-dark bg-dark" style="background-color: #C9A9A6;">
-        <a class="nav-link"  href="../home/index.php">Home <span class="sr-only">(current)</span></a>
+        <a class="nav-link"  href="../home/index.php">Pagina Inicial <span class="sr-only">(current)</span></a>
         <a class="nav-link" href="../agendamentos/index.php">Agendamentos</a>
         <a class="nav-link" href="../users/index.php">Usuários</a>
         <a class="nav-link" href="../services/index.php">Serviços</a>
-        <a class="nav-link" href="../login/logout.php">Sair</a>
+        <button class="btn "onclick="logout()">Sair</button>
      
 </nav>
+<script>
+
+function logout(){
+
+  if(confirm("Deseja sair do sistema?")){
+      window.location.href = '../login/logout.php';
+      return true;
+  }
+
+}
+
+</script>

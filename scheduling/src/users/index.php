@@ -36,6 +36,7 @@ $total_paginas = ceil($total_registros / $itens_por_pagina);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Usuários</title>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <script src="user.js"></script>
     <style>
         .container-fluid {
             padding: 20px;
@@ -118,7 +119,7 @@ $total_paginas = ceil($total_registros / $itens_por_pagina);
             </nav>
             <button class="btn btn-primary" onclick="newUser()">Novo</button>
             <button class="btn btn-primary" onclick="editService()">Editar</button>
-            <button class="btn btn-primary" onclick="getSelectedData()">Excluir</button>
+            <button class="btn btn-primary" onclick="deleteUser()">Excluir</button>
         </div>
     </div>
 
@@ -143,14 +144,7 @@ $total_paginas = ceil($total_registros / $itens_por_pagina);
             }
         }
 
-        //Função para chamar a tela de cadastro de usuario 
-        function newUser() {
-            window.location.href = '../register/';
-        }
-
-        function editService() {
-            window.location.href = 'newUser.php';
-        }
+        
     </script>
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>

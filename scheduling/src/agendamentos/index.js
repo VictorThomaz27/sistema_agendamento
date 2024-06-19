@@ -86,7 +86,6 @@ function cadastrarServico() {
 }
 
 
-
 window.onload = function () {
   // Inicialmente não carregamos horários até que uma data seja selecionada
 };

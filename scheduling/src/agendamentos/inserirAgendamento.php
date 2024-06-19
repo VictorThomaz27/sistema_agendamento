@@ -26,9 +26,6 @@ foreach ($agendamento->id_servico as $servico) {
     $agendamento->valor = $row['valor_servico'];
     $tempoServico = $row['tempo_servico']; // Tempo de serviço em minutos
 
-   
-    
-
     // Validação do agendamento
     $valida = validaAgenda($agendamento);
 
@@ -38,7 +35,7 @@ foreach ($agendamento->id_servico as $servico) {
     } else {
         // Prepara e executa a consulta SQL para inserir o agendamento
         $sql = "INSERT INTO tb_agendamento (id_usuario, id_status, data_agendamento, hora_agendamento) 
-            VALUES ('" . $agendamento->cliente . "','1','" . $agendamento->data . "','" . $agendamento->hora . "')";
+                VALUES ('" . $agendamento->cliente . "','2','" . $agendamento->data . "','" . $agendamento->hora . "')";
 
         if (mysqli_query($_SESSION['con'], $sql)) {
             $agendamentoId = mysqli_insert_id($_SESSION['con']);
@@ -50,7 +47,7 @@ foreach ($agendamento->id_servico as $servico) {
                 echo json_encode(array("success" => false, "error" => mysqli_error($_SESSION['con'])));
                 exit;
             }
-             // Adiciona o tempo de serviço à hora do agendamento
+            // Adiciona o tempo de serviço à hora do agendamento
             $agendamento->hora = date('H:i:s', strtotime($agendamento->hora . ' +' . $tempoServico . ' minutes'));
         } else {
             echo json_encode(array("success" => false, "error" => mysqli_error($_SESSION['con'])));
@@ -59,8 +56,10 @@ foreach ($agendamento->id_servico as $servico) {
     }
 }
 
-
-echo json_encode(array("success" => true));
+echo '<script type="text/javascript">';
+echo 'alert("Cadastro efetuado com sucesso!");';
+echo 'window.location.href="index.php";';
+echo '</script>';
 
 // Função que é responsável por validar o agendamento no banco de dados 
 function validaAgenda($agendamento) {
